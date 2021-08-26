@@ -1,63 +1,80 @@
 <template>
-  <div :class="classObj" class="app-wrapper">
-    <div v-if="classObj.mobile && sidebar.opened" class="drawer-bg" @click="handleClickOutside"/>
-    <sidebar class="sidebar-container"/>
-    <div class="main-container">
-      <navbar/>
-      <app-main/>
+    <div class="app-wrapper" :class="{hideSidebar:!sidebar.opened}">
+        <div class="sidebar-wrapper">
+            <Sidebar class="sidebar-container" />
+        </div>
+        <div class="main-container">
+            <Navbar/>
+            <App-main/>
+        </div>
     </div>
-  </div>
 </template>
 
-<script lang="ts">
-import { Navbar, AppMain, Sidebar } from './components';
-import ResizeMixin from './mixin/ResizeHandler';
-import { Component, Vue } from 'vue-property-decorator';
-import { mixins } from 'vue-class-component';
-import { DeviceType, AppModule } from '@/store/modules/app';
+<script>
+    import { Navbar, Sidebar, AppMain } from '@/views/layout';
 
-@Component({
-  components: {
-    Navbar,
-    Sidebar,
-    AppMain,
-  },
-})
-export default class Layout extends mixins(ResizeMixin) {
-  get classObj() {
-    return {
-      hideSidebar: !this.sidebar.opened,
-      openSidebar: this.sidebar.opened,
-      withoutAnimation: this.sidebar.withoutAnimation,
-      mobile: this.device === DeviceType.Mobile,
-    };
-  }
-
-  handleClickOutside() {
-    AppModule.CloseSideBar(false);
-  }
-}
+    export default {
+      name: 'layout',
+      components: {
+        Navbar,
+        Sidebar,
+        AppMain
+      },
+      computed: {
+        sidebar() {
+          return this.$store.state.app.sidebar;
+        }
+      }
+    }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/styles/mixin.scss";
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    &.mobile.openSidebar{
-      position: fixed;
-      top: 0;
+    @import "src/styles/mixin.scss";
+    .app-wrapper {
+        @include clearfix;
+        position: relative;
+        height: 100%;
+        width: 100%;
+        &.hideSidebar {
+            .sidebar-wrapper {
+                transform: translate(-140px, 0);
+                .sidebar-container {
+                    transform: translate(132px, 0);
+                }
+                &:hover {
+                    transform: translate(0, 0);
+                    .sidebar-container {
+                        transform: translate(0, 0);
+                    }
+                }
+            }
+            .main-container{
+                margin-left: 40px;
+            }
+        }
+        .sidebar-wrapper {
+            width: 180px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1001;
+            overflow: hidden;
+            transition: all .28s ease-out;
+        }
+        .sidebar-container {
+            transition: all .28s ease-out;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: -17px;
+            overflow-y: scroll;
+        }
+        .main-container {
+            min-height: 100%;
+            transition: all .28s ease-out;
+            margin-left: 180px;
+        }
     }
-  }
-  .drawer-bg {
-    background: #000;
-    opacity: 0.3;
-    width: 100%;
-    top: 0;
-    height: 100%;
-    position: absolute;
-    z-index: 999;
-  }
 </style>

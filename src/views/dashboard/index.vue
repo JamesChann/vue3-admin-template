@@ -1,34 +1,38 @@
 <template>
-  <div class="dashboard-container">
-    <div class="dashboard-text">name:{{ name }}</div>
-    <div class="dashboard-text">roles:<span v-for="role in roles" :key="role">{{ role }}</span></div>
-  </div>
+    <div class="dashboard-container">
+        <component v-bind:is="currentRole"> </component>
+    </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import { UserModule } from '@/store/modules/user';
-
-@Component
-export default class Dashboard extends Vue {
-  get name() {
-    return UserModule.name;
-  }
-
-  get roles() {
-    return UserModule.roles;
-  }
-}
+<script>
+    import { mapGetters } from 'vuex';
+    import DefaultDashboard from './default/index';
+    export default {
+      name: 'dashboard',
+      components: { DefaultDashboard },
+      data() {
+        return {
+          currentRole: 'DefaultDashboard'
+        }
+      },
+      computed: {
+        ...mapGetters([
+          'name',
+          'avatar',
+          'email',
+          'introduction',
+          'roles'
+        ])
+      },
+      created() {
+        if (this.roles.indexOf('admin') >= 0) {
+          return;
+        }
+        // const isEditor = this.roles.some(v => v.indexOf('editor') >= 0)
+        // if (!isEditor) {
+        //   this.currentRole = 'DefaultDashboard';
+        // }
+        this.currentRole = 'DefaultDashboard';
+      }
+    }
 </script>
-
-<style rel="stylesheet/scss" lang="scss" scoped>
-.dashboard {
-  &-container {
-    margin: 30px;
-  }
-  &-text {
-    font-size: 30px;
-    line-height: 46px;
-  }
-}
-</style>
