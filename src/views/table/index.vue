@@ -6,8 +6,7 @@
       element-loading-text="Loading"
       border
       fit
-      highlight-current-row
-    >
+      highlight-current-row>
       <el-table-column align="center" label="ID" width="95">
         <template slot-scope="scope">
           {{ scope.$index }}
@@ -35,7 +34,7 @@
       </el-table-column>
       <el-table-column align="center" prop="created_at" label="Display_time" width="200">
         <template slot-scope="scope">
-          <i class="el-icon-time" />
+          <i class="el-icon-time"/>
           <span>{{ scope.row.display_time }}</span>
         </template>
       </el-table-column>
@@ -43,37 +42,37 @@
   </div>
 </template>
 
-<script>
-import { getList } from '@/api/table'
+<script lang="ts">
+import { getList } from '@/api/table';
+import { Component, Vue } from 'vue-property-decorator';
 
-export default {
+@Component({
   filters: {
-    statusFilter(status) {
-      const statusMap = {
+    statusFilter(status: string) {
+      const statusMap: { [id: string]: string } = {
         published: 'success',
         draft: 'gray',
-        deleted: 'danger'
-      }
-      return statusMap[status]
-    }
+        deleted: 'danger',
+      };
+      return statusMap[status];
+    },
   },
-  data() {
-    return {
-      list: null,
-      listLoading: true
-    }
-  },
+})
+export default class Table extends Vue {
+  list = null;
+  listLoading = true;
+  listQuery = {};
+
   created() {
-    this.fetchData()
-  },
-  methods: {
-    fetchData() {
-      this.listLoading = true
-      getList().then(response => {
-        this.list = response.data.items
-        this.listLoading = false
-      })
-    }
+    this.fetchData();
+  }
+
+  fetchData() {
+    this.listLoading = true;
+    getList(this.listQuery).then((response) => {
+      this.list = response.data.items;
+      this.listLoading = false;
+    });
   }
 }
 </script>
